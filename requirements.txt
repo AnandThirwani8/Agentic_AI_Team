@@ -1,0 +1,14 @@
+ipykernel
+ipywidgets
+numpy
+pandas
+smolagents
+langchain
+faiss-cpu
+pypdf2
+python-dotenv
+langchain_community
+pypdf
+langchain_google_genai
+smolagents[litellm]
+google-generativeai

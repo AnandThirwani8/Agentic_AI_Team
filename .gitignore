@@ -1,0 +1,19 @@
+# Ignore Git files
+.git/
+
+# Ignore environment configuration
+.env
+*.secret
+venv/
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+*.ipynb~
+
+# Ignore IDE and editor settings
+.vscode/
+
+# Ignore operating system files
+.DS_Store
+Thumbs.db

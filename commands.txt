@@ -1,0 +1,31 @@
+# First Time
+open VS Code
+search for 'shell'. 
+select install code
+ext install path-intellisense
+
+# Every Time
+conda create -p venv python==3.10
+conda activate venv/
+pip install ipykernel
+pip install -r requirements.txt
+
+# Clone Env
+cd new_desitantion
+conda create --clone ../old_destination/venv -p  ./venv/
+
+
+# If you need to delete the environment
+conda env remove --prefix ./venv 
+rm -rf ./venv
+
+# Git Email
+git config --global user.email
+git config --global user.email "your-github-email@example.com"
+
+# Git
+git add .           
+git commit -m "Your commit message"
+git push origin main
+
+git restore --staged .
