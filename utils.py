@@ -15,6 +15,7 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 model = LiteLLMModel(model_id="gemini/gemini-1.5-flash",  api_key=os.environ["GOOGLE_API_KEY"])
 
 
+
 def create_vector_store(pdf_paths):
     """
     Create a FAISS vector store from multiple PDFs.
@@ -33,7 +34,7 @@ def create_vector_store(pdf_paths):
         all_documents.extend(documents)
 
     # Split text into chunks
-    text_splitter = CharacterTextSplitter(chunk_size=100, chunk_overlap=30, separator="\n")
+    text_splitter = CharacterTextSplitter(chunk_size=300, chunk_overlap=30, separator="\n")
     split_documents = text_splitter.split_documents(all_documents)
 
     # Generate embeddings
@@ -64,10 +65,7 @@ class RetrieverTool(Tool):
     def forward(self, query: str) -> str:
         assert isinstance(query, str), "Your search query must be a string"
 
-        docs = self.vectordb.similarity_search(
-            query,
-            k=7,
-        )
+        docs = self.vectordb.similarity_search(query, k=20)
 
         return "\nRetrieved documents:\n" + "".join(
             [f"===== Document {str(i)} =====\n" + doc.page_content for i, doc in enumerate(docs)]
@@ -75,7 +73,8 @@ class RetrieverTool(Tool):
     
 
 
-def create_agentic_team(vectorstore):
+
+def create_agentic_team(vectorstore, web_search_required = False):
     """Creates and returns a manager agent that coordinates specialized AI agents."""
 
     # Create the Analyst Agent for computations and data transformations
@@ -104,11 +103,16 @@ def create_agentic_team(vectorstore):
     )
 
     # Create the Manager Agent to coordinate all agents
+    if web_search_required:
+        AI_team = [analyst_agent, retriever_agent, web_agent]
+    else:
+        AI_team = [analyst_agent, retriever_agent]
+
     manager_agent = CodeAgent(
         model=model,
-        name="manager",
-        description="Coordinates and delegates tasks between specialized agents for seamless collaboration.",
-        managed_agents=[analyst_agent, retriever_agent, web_agent],
+        name = "manager",
+        description = "Coordinates and delegates tasks between specialized agents. Does not search the internet.",
+        managed_agents = AI_team,
         tools=[]
     )
 

@@ -12,3 +12,4 @@ pypdf
 langchain_google_genai
 smolagents[litellm]
 google-generativeai
+docling

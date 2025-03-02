@@ -10,6 +10,7 @@ venv/
 .ipynb_checkpoints/
 **/.ipynb_checkpoints/
 *.ipynb~
+__pycache__
 
 # Ignore IDE and editor settings
 .vscode/
