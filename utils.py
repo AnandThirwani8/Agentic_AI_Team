@@ -1,9 +1,11 @@
 import os
-from langchain.document_loaders import PyPDFLoader
-from langchain_community.document_loaders import PDFPlumberLoader
+import glob
+from IPython.display import Markdown
+from docling.document_converter import DocumentConverter
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain.vectorstores import FAISS
+from langchain.schema import Document 
 
 from smolagents import Tool
 from langchain_core.vectorstores import VectorStore
@@ -11,10 +13,11 @@ from smolagents import CodeAgent, LiteLLMModel, ToolCallingAgent, DuckDuckGoSear
 
 from dotenv import load_dotenv
 load_dotenv()
-
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-model = LiteLLMModel(model_id="gemini/gemini-1.5-flash",  api_key=os.environ["GOOGLE_API_KEY"])
 
+model = LiteLLMModel(model_id="gemini/gemini-1.5-flash",  api_key=os.environ["GOOGLE_API_KEY"])
+# model = LiteLLMModel(model_id="groq/deepseek-r1-distill-llama-70b", api_key=os.environ["GROQ_API_KEY"])
+# model = LiteLLMModel(model_id="ollama/deepseek-r1:14b", api_key="")
 
 
 def create_vector_store(pdf_paths):
@@ -27,25 +30,25 @@ def create_vector_store(pdf_paths):
     Returns:
         FAISS vector store
     """
-    all_documents = []
-    # Load and extract text from all PDFs
-    for pdf_path in pdf_paths:
-        loader = PyPDFLoader(file_path=pdf_path)
-        documents = loader.load()
-        all_documents.extend(documents)
 
-    # Split text into chunks
-    text_splitter = CharacterTextSplitter(chunk_size=300, chunk_overlap=30, separator="\n")
-    split_documents = text_splitter.split_documents(all_documents)
+    # PDF Exraction
+    pdf_extracted_text = []
+    converter = DocumentConverter()
+    for pdf in pdf_paths:
+        result = converter.convert(pdf)
+        markdown_text = result.document.export_to_markdown()
+        pdf_extracted_text+=[markdown_text]
+
+    # Convert to documents
+    split_documents = [Document(page_content=chunk) for chunk in pdf_extracted_text]
 
     # Generate embeddings
     embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004")
-    
+
     # Create FAISS vector store
     vectorstore = FAISS.from_documents(split_documents, embeddings)
 
     return vectorstore
-
 
 
 class RetrieverTool(Tool):
@@ -66,13 +69,12 @@ class RetrieverTool(Tool):
     def forward(self, query: str) -> str:
         assert isinstance(query, str), "Your search query must be a string"
 
-        docs = self.vectordb.similarity_search(query, k=20)
+        docs = self.vectordb.similarity_search(query, k=1)
 
         return "\nRetrieved documents:\n" + "".join(
             [f"===== Document {str(i)} =====\n" + doc.page_content for i, doc in enumerate(docs)]
         )
     
-
 
 
 def create_agentic_team(vectorstore, web_search_required = False):
@@ -82,8 +84,8 @@ def create_agentic_team(vectorstore, web_search_required = False):
     analyst_agent = CodeAgent(
         model=model,
         name="analyst",
-        description="Executes complex calculations, statistical analyses, and data transformations using code.",
-        additional_authorized_imports=['numpy', 'pandas'],
+        description="Executes complex calculations and data transformations strictly based on retrieved data. It does not generate assumptions, make up information, or infer details beyond the provided input.",
+        additional_authorized_imports=['pandas'],
         tools=[]
     )
 
@@ -112,7 +114,7 @@ def create_agentic_team(vectorstore, web_search_required = False):
     manager_agent = CodeAgent(
         model=model,
         name = "manager",
-        description = "Coordinates and delegates tasks between specialized agents. Does not search the internet.",
+        description = "Coordinates and delegates tasks among specialized agents. It returns responses in clear, concise, and human-readable sentences. It does not generate assumptions, make up information, or infer details beyond the provided input",
         managed_agents = AI_team,
         tools=[]
     )

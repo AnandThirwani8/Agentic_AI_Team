@@ -5,8 +5,7 @@ select install code
 ext install path-intellisense
 
 # Every Time
-conda create -p venv python==3.10
-conda activate venv/
+conda create -p venv python=3.10 -y && conda activate ./venv
 pip install ipykernel
 pip install -r requirements.txt
 
