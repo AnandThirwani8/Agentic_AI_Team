@@ -1,6 +1,5 @@
 import os
 import glob
-from IPython.display import Markdown
 from docling.document_converter import DocumentConverter
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
