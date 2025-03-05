@@ -10,8 +10,9 @@ This repository contains a multi-agent Retrieval-Augmented Generation (RAG) syst
 ### How to Use ? 🛠
 1. Set Up:
 ```bash
-git clone https://github.com/yourusername/multi-agent-rag.git
-cd multi-agent-rag
+git clone https://github.com/AnandThirwani8/Agentic_AI_Team.git
+cd Agentic_AI_Team
+conda create -p venv python=3.10 -y && conda activate venv/
 pip install -r requirements.txt
 ```
 2. Add Your PDFs: Place your PDF files in the ./data/ directory.
@@ -20,3 +21,4 @@ pip install -r requirements.txt
 ```bash
 python main.py
 ```
+
