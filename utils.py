@@ -84,7 +84,7 @@ def create_agentic_team(vectorstore, web_search_required = False):
         model=model,
         name="analyst",
         description="Executes complex calculations and data transformations strictly based on retrieved data. It does not generate assumptions, make up information, or infer details beyond the provided input.",
-        additional_authorized_imports=['pandas'],
+        additional_authorized_imports=['pandas', 'matplotlib'],
         tools=[]
     )
 
