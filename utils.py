@@ -4,7 +4,7 @@ from IPython.display import Markdown
 from docling.document_converter import DocumentConverter
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from langchain.vectorstores import FAISS
+from langchain_community.vectorstores import FAISS
 from langchain.schema import Document 
 
 from smolagents import Tool
